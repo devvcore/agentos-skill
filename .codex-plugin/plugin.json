@@ -1,0 +1,38 @@
+{
+  "name": "agentos",
+  "version": "0.1.0",
+  "description": "Awareness layer for AgentOS in Codex: ground on the real workspace via mcp__agentos__* before answering from training.",
+  "author": {
+    "name": "devvcore",
+    "url": "https://github.com/devvcore"
+  },
+  "homepage": "https://github.com/devvcore/agentos-skill",
+  "repository": "https://github.com/devvcore/agentos-skill",
+  "license": "MIT",
+  "keywords": [
+    "agentos",
+    "mcp",
+    "grounding",
+    "memory",
+    "skills",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AgentOS",
+    "shortDescription": "Ground on the real business before answering",
+    "longDescription": "Teach Codex when and how to reach for AgentOS: whenever reasoning about a business, its people, clients, projects, docs, or data, ground via mcp__agentos__context first, use your memory across runs, and close the skill flywheel.",
+    "developerName": "devvcore",
+    "category": "Productivity",
+    "capabilities": [
+      "Instructions"
+    ],
+    "websiteURL": "https://github.com/devvcore/agentos-skill",
+    "defaultPrompt": [
+      "Use agentos for this task.",
+      "Ground this on the real workspace before answering.",
+      "Check AgentOS context and memory first."
+    ],
+    "brandColor": "#111111"
+  }
+}
