@@ -1,130 +1,76 @@
-# Install agentos
+# Install AgentOS for your coding agent
 
-A Claude Code / Codex plugin. One skill inside — the awareness layer for the AgentOS MCP tools.
+Two layers make it work:
 
-Two layers, don't confuse them:
-- **Capability layer** — the `mcp__agentos__*` tools. These come from connecting the AgentOS MCP server to your session. Without it there is nothing to ground against.
-- **Awareness layer** — this skill. It teaches the agent WHEN to reach for those tools and HOW. Install both.
+- **Capability** — the `mcp__agentos__*` tools (context, memory, topics, github, secrets, skills, CRM, tasks, drive, chats), served by the AgentOS MCP server.
+- **Awareness** — the `agentos` skill, which teaches the agent WHEN to reach for those tools and how the primitives (grounding, topics, memory) work.
 
-## TL;DR
+You need both. On **Claude Code** the plugin ships both and wires the MCP connection for you. On **Codex** there's no plugin system, so you add the skill file and the MCP server manually (still two short steps).
 
-### Claude Code
+First, mint a Personal Access Token in AgentOS: **Settings → Access Tokens**. It scopes the connection to your workspace.
+
+---
+
+## Claude Code (one install wires up everything)
 
 ```bash
-git clone https://github.com/devvcore/agentos-skill ./agentos-skill
-claude plugin marketplace add ./agentos-skill
+claude plugin marketplace add devvcore/agentos-skill
 claude plugin install agentos@agentos
 ```
 
-Open Claude Code, type `/agentos`.
+On install you're prompted for your **AgentOS URL** (default `https://tryagentos.net`) and your **Personal Access Token** (stored securely — Keychain / credentials file, never in plaintext). The bundled MCP server then starts automatically: `claude mcp list` shows `agentos` connected, `mcp__agentos__context` and the `topic_*`/`github_*` tools become callable, and the awareness skill loads.
 
-To disable: `claude plugin disable agentos` (or `/plugin disable agentos` from within Claude Code). Re-enable later with `enable` instead of `disable`.
-
-### Codex
+Verify:
 
 ```bash
-codex plugin marketplace add devvcore/agentos-skill --ref main
-codex plugin add agentos@agentos
+claude plugin list      # agentos (enabled)
+claude mcp list         # agentos — connected
 ```
 
-In Codex, type `$agentos` to invoke it explicitly. Codex can also invoke it implicitly when it sees a task that touches the business.
+Update later: `claude plugin marketplace update agentos && claude plugin update agentos@agentos`.
+Remove: `claude plugin uninstall agentos`.
 
-## Connect the AgentOS MCP server (required)
-
-The skill is inert without the `mcp__agentos__*` tools. Add the AgentOS MCP server to your session so those tools exist:
-
-### Claude Code
-
-```bash
-claude mcp add agentos --transport http https://tryagentos.net/api/mcp \
-  --header "Authorization: Bearer <your AgentOS Personal Access Token>"
-```
-
-Mint the token in AgentOS under Settings → Access Tokens. Then `claude mcp list` should show `agentos` connected, and `mcp__agentos__context` and friends become callable — including the topics bus (`topic_*`), whose updates arrive automatically inside your tool results once you subscribe.
-
-### Codex
-
-Add the AgentOS MCP server to your Codex MCP config (`~/.codex/config.toml`), pointing at your workspace's `/mcp` endpoint, then restart Codex.
-
-## Verify
-
-### Claude Code
-
-```bash
-claude plugin list
-```
-
-Look for `agentos  (enabled)`. Then confirm the tools are live:
-
-```bash
-claude mcp list
-```
-
-Look for `agentos` connected.
-
-### Codex
-
-```bash
-codex plugin list
-```
-
-Look for `agentos` in the configured `agentos` marketplace.
-
-## Update
-
-### Claude Code
-
-```bash
-cd ./agentos-skill && git pull
-```
-
-The marketplace re-reads the local checkout. Next Claude Code session picks up changes.
-
-### Codex
-
-```bash
-codex plugin marketplace upgrade agentos
-codex plugin remove agentos
-codex plugin add agentos@agentos
-```
-
-## Uninstall
-
-### Claude Code
-
-```bash
-claude plugin uninstall agentos
-claude plugin marketplace remove agentos
-```
-
-### Codex
-
-```bash
-codex plugin remove agentos
-codex plugin marketplace remove agentos
-```
-
-## Always-on (optional)
-
-To skip `/agentos` and apply the grounding discipline from message one, add to `~/.claude/CLAUDE.md`:
+### Always-on (optional)
+To apply the grounding discipline from message one without invoking `/agentos`, add to `~/.claude/CLAUDE.md`:
 
 ```markdown
 ## Working inside AgentOS
-
-Always follow the `agentos` skill: whenever reasoning about the business, its
-people, clients, projects, docs, or data, ground via `mcp__agentos__context`
-first before answering from training; use `recall_memory` / `journal_add`
-across runs; write reusable skills back with `skills_create`; and work the
-topics bus — `topic_search`/`topic_subscribe` at work-start, `topic_post` one
-line when you claim, finish, or discover something a co-worker would trip on.
+Follow the `agentos` skill: ground via `mcp__agentos__context` before answering
+about the business; use `recall_memory`/`journal_add` across runs; work the
+topics bus (`topic_search`/`topic_subscribe` at work-start, `topic_post` one
+line when you claim, finish, or discover something a co-worker would trip on);
+write reusable skills back with `skills_create`.
 ```
 
+---
+
+## Codex (no plugin system — two manual steps)
+
+Codex has no plugin marketplace, so add the pieces directly.
+
+**1. The skill** — copy it into your Codex skills directory:
+
+```bash
+git clone https://github.com/devvcore/agentos-skill /tmp/agentos-skill
+mkdir -p ~/.codex/skills/agentos
+cp /tmp/agentos-skill/skills/agentos/SKILL.md ~/.codex/skills/agentos/
+```
+
+**2. The MCP server** — Codex reads the token from an env var (no `${VAR}` in its config):
+
+```bash
+export AGENTOS_TOKEN="<your Personal Access Token>"   # add to your shell profile
+codex mcp add agentos --url https://tryagentos.net/api/mcp --bearer-token-env-var AGENTOS_TOKEN
+```
+
+Verify: `codex mcp list` shows `agentos`. In Codex, invoke the skill with `$agentos`, or let it trigger implicitly on business-touching work.
+
+---
+
+## Self-hosting
+Point `agentos_url` (Claude Code) / `--url` (Codex) at your own AgentOS instance's `/api/mcp`. Everything else is identical.
+
 ## Troubleshooting
-
-**`/agentos` not in autocomplete.** Restart Claude Code. The plugin index is read at startup.
-
-**`claude plugin marketplace add` fails.** Point at the repo root, not at `.claude-plugin/`. The path must contain `.claude-plugin/marketplace.json`.
-
-**Skill loads but there are no `mcp__agentos__*` tools.** The capability layer is missing. Connect the AgentOS MCP server (see above). The skill is awareness only; it does not ship the tools.
-
-**Agent still answers from training instead of grounding.** Open a new session so stale context clears. If it still drifts, confirm `mcp__agentos__context` is callable (`claude mcp list`), then tighten the wording in `skills/agentos/SKILL.md` and re-invoke.
+- **No `mcp__agentos__*` tools.** The MCP server isn't connected. Claude Code: `claude mcp list` — if `agentos` is missing, re-run the plugin install and re-enter the token. Codex: confirm `AGENTOS_TOKEN` is set in the current shell and re-run `codex mcp add`.
+- **401 from the server.** The token is wrong or from another workspace — mint a fresh one in Settings → Access Tokens.
+- **Agent answers from training instead of grounding.** Start a fresh session so context clears; confirm `mcp__agentos__context` is callable.

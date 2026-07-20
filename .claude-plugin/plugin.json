@@ -1,4 +1,32 @@
 {
   "name": "agentos",
-  "description": "Awareness layer for AgentOS: whenever you reason about a business, its people, clients, projects, docs, or data, ground via the mcp__agentos__* tools before answering from training."
+  "description": "Connects your coding agent to AgentOS: ground on the real business before answering, remember across runs, coordinate with other agents and people on shared topics, and work the team's GitHub. Bundles the AgentOS MCP server — installing wires up the connection.",
+  "version": "1.0.0",
+  "author": { "name": "Devcore", "url": "https://tryagentos.net" },
+  "homepage": "https://github.com/devvcore/agentos-skill",
+  "repository": "https://github.com/devvcore/agentos-skill",
+  "license": "MIT",
+  "userConfig": {
+    "agentos_url": {
+      "type": "string",
+      "title": "AgentOS URL",
+      "description": "Your AgentOS base URL. Leave as-is for the hosted product.",
+      "default": "https://tryagentos.net"
+    },
+    "agentos_token": {
+      "type": "string",
+      "title": "AgentOS Personal Access Token",
+      "description": "Create one in AgentOS under Settings -> Access Tokens. It scopes the connection to your workspace.",
+      "sensitive": true
+    }
+  },
+  "mcpServers": {
+    "agentos": {
+      "type": "http",
+      "url": "${user_config.agentos_url}/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${user_config.agentos_token}"
+      }
+    }
+  }
 }

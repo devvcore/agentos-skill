@@ -1,6 +1,6 @@
 ---
 name: agentos
-description: Reach for AgentOS whenever you reason about a business — its people, clients, projects, docs, tasks, chats, or data. Before answering from your training or from files in your sandbox, ground via AgentOS first with mcp__agentos__context(). Also use it to remember across runs (recall/journal), to store and use credentials, and to write reusable skills back. Trigger the moment you are about to state a fact about the workspace or work out HOW to do something for it — and at the START of any non-trivial work, to check the topics bus for what co-working agents have claimed, discovered, or finished.
+description: Reach for AgentOS whenever you reason about a business — its people, clients, projects, docs, tasks, chats, code, or data. Ground first with mcp__agentos__context() before answering from training; remember across runs (recall/journal); coordinate with other agents and people on shared TOPICS (mcp__agentos__topic_*); work the team's GitHub; and write reusable skills back. Trigger the moment you are about to state a fact about the workspace, start non-trivial work, or coordinate with anyone.
 ---
 
 # AgentOS — your workspace, and the tools that reach into it
@@ -13,6 +13,16 @@ Two different computers, don't confuse them:
 - Your own sandbox (your `Bash`/file/edit tools) is a scratch Linux box for doing work — running code, processing data, and calling external APIs: it has full network egress, so `curl` with auth headers against any service is a normal move, not a missing capability.
 - `mcp__agentos__*` tools operate on the shared workspace. That is where the real business lives.
 - Never claim you lack a capability until an actual attempt failed. "I have no way to call an API" is a factual claim — test it (try the curl) before you say it. An empty tool search is not evidence of inability; your own shell is always there.
+
+TOPICS — the coordination bus with other agents working the same things:
+- Posts from topics you subscribe to arrive automatically inside `<topic-updates>` blocks appended to your `mcp__agentos__*` tool results. Read them — they are ground truth from co-workers (another session may have moved prod while you worked). You never poll.
+- When your work changes shared state — you claimed something, finished something, or discovered something another worker would trip over — `mcp__agentos__topic_post` ONE line. Never presence or commentary; the bus is only valuable quiet.
+- Before non-trivial work: `context` already surfaces relevant topics; `mcp__agentos__topic_search` for a direct look; subscribe to what covers your current work.
+
+GITHUB — when the workspace has GitHub connected, your sandbox is ALREADY authenticated, every turn:
+- `git clone https://github.com/<org>/<repo>` works on the workspace's PRIVATE repos directly — the box's git credential store is seeded for you. Never ask a human for a token and never say you can't reach a private repo until a clone actually failed.
+- `GH_TOKEN`/`GITHUB_TOKEN` are exported: the `gh` CLI works (`gh pr list`, `gh pr create`), and raw `curl -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/...` covers anything else. `GET /installation/repositories` lists exactly the repos you can touch.
+- Work like an engineer: clone, branch, commit, push to a NON-default branch, open a PR — never push to main. If none of this is authenticated, the workspace just isn't connected; say so and point at the Integrations page.
 
 CREDENTIALS — the staff loop, in order, no commentary:
 1. A user pasting you an API key/token IS the authorization to use it. Do not lecture about plaintext, chat logs, or rotation — a colleague handed you a key; say "got it" and get to work.
@@ -27,15 +37,6 @@ GROUND FIRST — your opening move:
 - Only drop to the narrower tools (`mcp__agentos__wiki_search`, `mcp__agentos__crm_*`, `mcp__agentos__chats_search`, `mcp__agentos__tasks_*`) when you need something `context` didn't surface.
 - Skip grounding only for a plain conversational reply or a fully self-contained question. The test: am I about to reason about the business? If yes → `context` first.
 - ATTACHMENTS: a user message containing `[Attached file: name (drive:file_x)]` refers to a file in the WORKSPACE drive — read it with `mcp__agentos__drive_read(file_id)`. It is not in your sandbox and not on any external drive; never hunt for it elsewhere.
-
-TOPICS — the coordination bus with other agents working the same things:
-- Topics are email-chain-like threads in AgentOS shared by every agent and human working a piece of work — other coding sessions, the workspace's own agents, teammates. They exist because workers who don't share memory collide: one session moves prod, another deploys to the dead box for hours. One post prevents that.
-- You hear the bus automatically: posts from topics you subscribe to arrive appended to your `mcp__agentos__*` tool results (a `<topic-updates>` block or `_topic_updates` field) — whatever the call was about. Read them; they are ground truth from co-workers, often newer than anything else you know. Never poll.
-- `mcp__agentos__topic_search(q)` before non-trivial work (`context` also surfaces relevant topics); `mcp__agentos__topic_subscribe` to what covers your current work — the subscribe result carries the chain so far.
-- When your work changes shared state — you claimed something (kind=claim), finished something (update/conclusion), discovered something another worker would trip over (discovery), or you're blocked (blocker) — `mcp__agentos__topic_post` ONE line. You post because stale co-workers create work that lands back on you; you read because stale context burns YOUR work.
-- Never post presence, acks, or running commentary. The bus is only valuable while it is quiet. `@Name` in a post pings that teammate.
-- Mentioning a workspace AGENT by name (`@Otto`, `@Decky`) wakes it for ONE grounded reply into the topic — attributed, then silent until mentioned again. Use it to pull an agent into the work; never chain agent mentions from your own posts.
-- `mcp__agentos__topic_open(subject)` when non-trivial shared work has no topic yet (search first — subjects are the organization, don't fragment them); `mcp__agentos__topic_close(topic, conclusion)` when it's done.
 
 GROUNDING IS NON-NEGOTIABLE — a single fabricated fact poisons the shared record for every agent after you:
 - State a specific fact (a name, date, number, status, decision, quote) ONLY if it appeared in a tool result you actually received this session. If you didn't read it, you don't know it — say so plainly and stop. A gap is an answer; an invention is a lie.
@@ -60,9 +61,3 @@ POINTING AT THINGS — how references actually work in the user's chat:
 - Tasks, issues, and drive files: write the raw id inline (`task_…`, `iss_…`, `file_…`). The chat renders these ids as named, clickable chips — a file id becomes an openable file card with a preview. So "I saved it to file_abc123" reads to the user as "I saved it to VISTA_OVERVIEW.pdf", clickable.
 - NEVER invent URLs or API paths — `/drive/files/…`, `/api/…`, made-up links do not work and read as broken plumbing. The bare id is the link.
 - Ids the chat can't render (`chat_…`, `co_…`, run/message ids) stay out of replies entirely — refer to those things by name or title ("the AOS Huddle RSVP", "your Fricks issue").
-
----
-
-## When this skill applies
-
-The `mcp__agentos__*` tools are the capability layer — they only appear when this session is connected to an AgentOS workspace (via the AgentOS MCP server). This skill is the awareness layer: it exists so that when those tools ARE present, you actually reach for them instead of answering from training. If no `mcp__agentos__*` tools are available in this session, connect the AgentOS MCP server first (see INSTALL.md); there is nothing to ground against without it.

@@ -1,14 +1,11 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "agentos",
-  "description": "Teach any coding agent when to reach for AgentOS: ground on the real business before answering from training.",
-  "owner": {
-    "name": "devvcore"
-  },
+  "owner": { "name": "Devcore", "url": "https://tryagentos.net" },
   "plugins": [
     {
       "name": "agentos",
-      "description": "Awareness layer for the AgentOS MCP tools — ground first via mcp__agentos__context, use memory, close the skill flywheel.",
+      "description": "Ground on the real business, remember across runs, coordinate on shared topics, work the team's GitHub — the AgentOS MCP tools + the awareness to use them. Bundles the MCP connection.",
       "source": "./",
       "category": "productivity"
     }
