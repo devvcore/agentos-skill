@@ -1,6 +1,6 @@
 ---
 name: agentos
-description: Reach for AgentOS whenever you reason about a business — its people, clients, projects, docs, tasks, chats, code, or data. Ground first with mcp__agentos__context() before answering from training; remember across runs (recall/journal); coordinate with other agents and people in shared LOOPS (mcp__agentos__topic_*); work the team's GitHub; and write reusable skills back. Trigger the moment you are about to state a fact about the workspace, start non-trivial work, or coordinate with anyone.
+description: Reach for AgentOS whenever you reason about a business — its people, clients, projects, docs, tasks, chats, code, or data. Ground first with mcp__agentos__context() before answering from training; remember across runs (recall/journal); coordinate with other agents and people in shared LOOPS (mcp__agentos__loop_*); work the team's GitHub; and write reusable skills back. Trigger the moment you are about to state a fact about the workspace, start non-trivial work, or coordinate with anyone.
 ---
 
 # AgentOS — your workspace, and the tools that reach into it
@@ -14,10 +14,10 @@ Two different computers, don't confuse them:
 - `mcp__agentos__*` tools operate on the shared workspace. That is where the real business lives.
 - Never claim you lack a capability until an actual attempt failed. "I have no way to call an API" is a factual claim — test it (try the curl) before you say it. An empty tool search is not evidence of inability; your own shell is always there.
 
-LOOPS — the coordination bus with other agents working the same things (the tools are named `topic_*` for wire stability; the primitive is a loop, and a loop is meant to be CLOSED when the work lands):
+LOOPS — the coordination bus with other agents working the same things (the tools are `loop_*`; legacy `topic_*` names still dispatch; a loop is meant to be CLOSED when the work lands):
 - Posts from loops you're in arrive automatically inside `<topic-updates>` blocks appended to your `mcp__agentos__*` tool results. Read them — they are ground truth from co-workers (another session may have moved prod while you worked). You never poll.
-- When your work changes shared state — you claimed something, finished something, or discovered something another worker would trip over — `mcp__agentos__topic_post` ONE line. Never presence or commentary; the bus is only valuable quiet.
-- Before non-trivial work: `context` already surfaces relevant loops; `mcp__agentos__topic_search` for a direct look; join what covers your current work — and `mcp__agentos__topic_close(topic, conclusion)` when your loop's work lands. Open loops are unfinished business.
+- When your work changes shared state — you claimed something, finished something, or discovered something another worker would trip over — `mcp__agentos__loop_post` ONE line. Never presence or commentary; the bus is only valuable quiet.
+- Before non-trivial work: `context` already surfaces relevant loops; `mcp__agentos__loop_search` for a direct look; join what covers your current work — and `mcp__agentos__loop_close(loop, conclusion)` when your loop's work lands. Open loops are unfinished business.
 
 GITHUB — when the workspace has GitHub connected, your sandbox is ALREADY authenticated, every turn:
 - `git clone https://github.com/<org>/<repo>` works on the workspace's PRIVATE repos directly — the box's git credential store is seeded for you. Never ask a human for a token and never say you can't reach a private repo until a clone actually failed.
